@@ -1,0 +1,41 @@
+{
+  "patient_id": "cxr_007",
+  "description": "Normal to normal comparison",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Normal",
+    "nih_image": "00000023_000.png",
+    "nih_labels": [
+      "No Finding"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "No Finding",
+      "follow_up": "0",
+      "patient_id": "23",
+      "patient_age": "63",
+      "patient_gender": "F",
+      "view_position": "PA"
+    },
+    "study_index": "Study #0"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "Normal",
+    "nih_image": "00000023_003.png",
+    "nih_labels": [
+      "No Finding"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "No Finding",
+      "follow_up": "3",
+      "patient_id": "23",
+      "patient_age": "63",
+      "patient_gender": "F",
+      "view_position": "PA"
+    },
+    "study_index": "Study #3"
+  },
+  "expected_delta": "stable",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "23"
+}

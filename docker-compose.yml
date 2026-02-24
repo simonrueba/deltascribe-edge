@@ -1,0 +1,54 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3020:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - deltascribe
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/data/models/medgemma-1.5-4b
+      - MODEL_NAME=google/medgemma-4b-it
+      - DEVICE=cpu
+      - TORCH_DTYPE=float32
+      - LOG_LEVEL=INFO
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:3020"]
+      - DEBUG=true
+      - USE_GGUF=true
+      - GGUF_MODEL_PATH=/data/models/medgemma-4b-it-Q4_K_M.gguf
+      - GGUF_N_CTX=4096
+      - GGUF_N_THREADS=8
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - ./data:/data
+      - model_cache:/home/appuser/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - deltascribe
+    restart: unless-stopped
+
+networks:
+  deltascribe:
+    driver: bridge
+
+volumes:
+  model_cache:

@@ -1,0 +1,44 @@
+{
+  "patient_id": "cxr_001",
+  "description": "Consolidation and effusion improving",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Consolidation, effusion, atelectasis",
+    "nih_image": "00000096_005.png",
+    "nih_labels": [
+      "Atelectasis",
+      "Cardiomegaly",
+      "Consolidation",
+      "Effusion"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Atelectasis|Cardiomegaly|Consolidation|Effusion",
+      "follow_up": "5",
+      "patient_id": "96",
+      "patient_age": "67",
+      "patient_gender": "F",
+      "view_position": "PA"
+    },
+    "study_index": "Study #5"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "Consolidation and effusion resolved",
+    "nih_image": "00000096_008.png",
+    "nih_labels": [
+      "No Finding"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "No Finding",
+      "follow_up": "8",
+      "patient_id": "96",
+      "patient_age": "67",
+      "patient_gender": "F",
+      "view_position": "PA"
+    },
+    "study_index": "Study #8"
+  },
+  "expected_delta": "improved",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "96"
+}

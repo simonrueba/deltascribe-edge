@@ -1,0 +1,41 @@
+{
+  "patient_id": "cxr_004",
+  "description": "New pneumothorax",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Clear lungs",
+    "nih_image": "00000013_038.png",
+    "nih_labels": [
+      "No Finding"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "No Finding",
+      "follow_up": "16",
+      "patient_id": "13",
+      "patient_age": "56",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #16"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "New pneumothorax",
+    "nih_image": "00000013_039.png",
+    "nih_labels": [
+      "Pneumothorax"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Pneumothorax",
+      "follow_up": "17",
+      "patient_id": "13",
+      "patient_age": "56",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #17"
+  },
+  "expected_delta": "worsened",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "13"
+}

@@ -1,0 +1,41 @@
+{
+  "patient_id": "cxr_006",
+  "description": "Stable atelectasis",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Atelectasis",
+    "nih_image": "00000030_000.png",
+    "nih_labels": [
+      "Atelectasis"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Atelectasis",
+      "follow_up": "0",
+      "patient_id": "30",
+      "patient_age": "74",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #0"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "Stable atelectasis",
+    "nih_image": "00000030_001.png",
+    "nih_labels": [
+      "Atelectasis"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Atelectasis",
+      "follow_up": "1",
+      "patient_id": "30",
+      "patient_age": "79",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #1"
+  },
+  "expected_delta": "stable",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "30"
+}

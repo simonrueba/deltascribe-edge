@@ -1,0 +1,41 @@
+{
+  "patient_id": "cxr_005",
+  "description": "Effusion improving",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Pleural effusion",
+    "nih_image": "00000011_000.png",
+    "nih_labels": [
+      "Effusion"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Effusion",
+      "follow_up": "0",
+      "patient_id": "11",
+      "patient_age": "74",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #0"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "Effusion resolved",
+    "nih_image": "00000011_001.png",
+    "nih_labels": [
+      "No Finding"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "No Finding",
+      "follow_up": "1",
+      "patient_id": "11",
+      "patient_age": "74",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #1"
+  },
+  "expected_delta": "improved",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "11"
+}

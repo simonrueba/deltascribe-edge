@@ -1,0 +1,42 @@
+{
+  "patient_id": "cxr_003",
+  "description": "Stable cardiomegaly with new emphysema",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Cardiomegaly",
+    "nih_image": "00000001_000.png",
+    "nih_labels": [
+      "Cardiomegaly"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Cardiomegaly",
+      "follow_up": "0",
+      "patient_id": "1",
+      "patient_age": "57",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #0"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "Stable cardiomegaly, new emphysema",
+    "nih_image": "00000001_001.png",
+    "nih_labels": [
+      "Cardiomegaly",
+      "Emphysema"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Cardiomegaly|Emphysema",
+      "follow_up": "1",
+      "patient_id": "1",
+      "patient_age": "58",
+      "patient_gender": "M",
+      "view_position": "PA"
+    },
+    "study_index": "Study #1"
+  },
+  "expected_delta": "worsened",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "1"
+}

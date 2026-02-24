@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Model weights (too large for git)
+data/models/
+data/voiceover/
+
+# Build artifacts
+.next/
+out/
+dist/
+build/
+*.so
+
+# Video project (large)
+video/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+model_cache/
+
+# Misc
+*.log
+.taskmaster/

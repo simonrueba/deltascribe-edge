@@ -1,0 +1,396 @@
+\documentclass[10pt,twocolumn]{article}
+
+% ── Packages ──────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage[margin=0.75in,top=0.7in,bottom=0.7in,columnsep=0.3in]{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{caption}
+\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
+
+% ── Hyperlinks ────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=false,
+  pdfborder={0 0 0},
+  pdftitle={DeltaScribe Edge: Offline Longitudinal CXR Copilot},
+  pdfauthor={Simon},
+}
+
+% ── Section formatting ────────────────────────────────────────────────
+\titleformat{\section}{\normalsize\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\small\bfseries}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\small\itshape}{}{0em}{}
+\titlespacing*{\section}{0pt}{0.8em}{0.25em}
+\titlespacing*{\subsection}{0pt}{0.5em}{0.15em}
+\titlespacing*{\subsubsection}{0pt}{0.35em}{0.1em}
+
+% ── Compact lists ─────────────────────────────────────────────────────
+\setlist[itemize]{leftmargin=1.2em,itemsep=1pt,parsep=0pt,topsep=2pt}
+\setlist[enumerate]{leftmargin=1.4em,itemsep=1pt,parsep=0pt,topsep=2pt}
+
+% ── Paragraph spacing ────────────────────────────────────────────────
+\setlength{\parskip}{3pt plus 1pt}
+\setlength{\parindent}{1em}
+
+% ══════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Title ─────────────────────────────────────────────────────────────
+\twocolumn[{%
+\centering
+{\Large\bfseries DeltaScribe Edge: Offline Longitudinal Chest X-Ray Copilot\\[2pt]
+with Verifiable Evidence and FHIR Export\par}
+\vspace{6pt}
+{\normalsize The MedGemma Impact Challenge --- Kaggle 2026\par}
+\vspace{10pt}
+\rule{0.4\textwidth}{0.4pt}
+\vspace{8pt}
+}]
+\thispagestyle{empty}
+
+% ══════════════════════════════════════════════════════════════════════
+\section{Project Name}
+
+DeltaScribe Edge --- Offline longitudinal chest X-ray copilot with verifiable evidence and FHIR export.
+
+% ══════════════════════════════════════════════════════════════════════
+\section{Your Team}
+
+\textbf{Simon} --- Architecture, implementation, and evaluation (independent, end-to-end development).
+
+% ══════════════════════════════════════════════════════════════════════
+\section{Problem Statement}
+
+\subsection{Problem Domain}
+
+Follow-up respiratory imaging is among the most common and time-critical workflows in clinical care (pneumonia follow-up, pulmonary edema monitoring, post-treatment assessment).
+The core challenge is not interpreting a single image but answering: \emph{what changed since the prior study, and how should that change be documented consistently?}
+
+Clinicians must locate the relevant prior, compare findings across studies, draft standardised interval-change language, and communicate uncertainty.
+This process is structured and repetitive yet remains largely manual.
+Many clinical environments cannot rely on large closed cloud models due to privacy constraints, limited connectivity, latency, and governance requirements.
+Open-weight healthcare models enable local deployment with auditable behaviour, making AI-assisted longitudinal documentation feasible.
+
+Today, the dominant workflow involves the radiologist opening both studies side-by-side, mentally cataloguing findings, and free-text dictating a report.
+Variability across reporters is well-documented: identical imaging pairs can yield materially different interval-change assessments depending on time pressure, template availability, and individual reporting style.
+A tool that produces a structured, evidence-linked first draft---subject to clinician review---can reduce this variability while preserving clinical judgment.
+
+\subsection{Impact Potential}
+
+An effective solution improves:
+(1)~documentation efficiency via faster time-to-first-draft;
+(2)~consistency through standardised delta language;
+(3)~continuity of care for rotating staff; and
+(4)~trustworthiness via explicit evidence mapping and uncertainty gating.
+
+\smallskip
+\noindent\textbf{Illustrative estimate.}
+If a site drafts 30 follow-up CXR reports per day and saves 2~minutes per report, that yields ${\sim}60$~min/day (${\sim}5$~hours/week) of clinician time returned to direct care.
+Across a 10-site deployment, this scales to ${\sim}50$~hours/week of recovered clinician capacity.
+With an average time-to-first-draft of 177\,s on commodity hardware (Apple~M3, CPU-only Docker), a 2-minute saving per report is achievable on GPU-equipped workstations.
+
+% ══════════════════════════════════════════════════════════════════════
+\section{Overall Solution}
+
+DeltaScribe Edge is an offline-first demonstration application for longitudinal CXR follow-ups.
+It accepts:
+
+\begin{itemize}
+  \item Current CXR + Prior CXR (required).
+  \item Optional: dictation audio (brief clinician note).
+  \item Optional: FHIR-formatted patient context (conditions, medications, prior report snippet).
+  \item Optional: retrieval evidence (similar historical cases, guideline/template snippets).
+\end{itemize}
+
+\noindent It produces four outputs:
+
+\begin{enumerate}
+  \item \textbf{Delta Summary} --- concise interval-change bullets.
+  \item \textbf{Draft Report} --- radiology-style Findings / Impression template.
+  \item \textbf{Evidence Ledger} --- every material claim linked to evidence sources and an uncertainty status.
+  \item \textbf{FHIR Export} --- a conformant Bundle containing \texttt{DiagnosticReport} and \texttt{Observation} resources, generated by deterministic mapping from the structured output (the model does not write FHIR directly).
+\end{enumerate}
+
+\subsection{Why HAI-DEF / MedGemma}
+
+MedGemma is purpose-built for medical multimodal reasoning, including CXR interpretation and longitudinal comparison.
+Using open-weight healthcare models also enables full control over weights and infrastructure, supporting offline, privacy-preserving deployment where care is delivered.
+
+\smallskip
+\noindent\textbf{HAI-DEF models used:}
+
+\begin{itemize}
+  \item \textbf{MedGemma 4B-IT} (text): longitudinal CXR comparison, report drafting, structured JSON output.
+  Default deployment uses a GGUF-quantised variant (Q4\_K\_M, ${\sim}$2.3\,GB) via \texttt{llama-cpp-python} for CPU/edge inference; a multimodal transformers pathway is available for GPU environments.
+  \item \textbf{MedASR} (optional): offline medical dictation (conditional fallback chain).
+  \item \textbf{MedSigLIP / CXR Foundation} (optional): embedding-based retrieval for explainability and evidence grounding.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════
+\section{Technical Details}
+
+\subsection{Architecture}
+
+A reproducible containerised stack:
+\textbf{Frontend:} Next.js + shadcn/ui (local web UI).
+\textbf{Backend:} Python FastAPI orchestrator and inference service.
+\textbf{Runtime:} local model weights mounted into the container; no network access required.
+\textbf{Assets:} curated demo patient pairs, reference atlas, guideline/template pack, local FHIR bundles.
+All inference runs locally; no patient data needs to leave the device.
+
+% ── Architecture Diagram ─────────────────────────────────────────────
+\begin{figure}[h]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.35cm and 0.4cm,
+    every node/.style={font=\footnotesize},
+    box/.style={draw, rounded corners=2pt, minimum height=0.55cm,
+                minimum width=2.2cm, align=center, thick},
+    io/.style={box, densely dashed},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+  ]
+  % Inputs
+  \node[io] (cxr) {Prior + Current CXR};
+  \node[io, below=of cxr] (audio) {Dictation (opt.)};
+  \node[io, below=of audio] (fhir_in) {FHIR Context (opt.)};
+
+  % Pipeline
+  \node[box, right=1.0cm of audio] (val) {1. Validate};
+  \node[box, right=of val] (pre) {2. Preprocess};
+  \node[box, below=of pre] (ctx) {3. Context\\Extract};
+  \node[box, below=of ctx] (rag) {4. RAG\\Retrieval};
+  \node[box, right=of pre] (inf) {5. MedGemma\\Inference};
+  \node[box, below=of inf] (schema) {6. Schema\\Validate};
+  \node[box, below=of schema] (ledger) {7. Evidence\\Ledger};
+
+  % Outputs
+  \node[io, right=1.0cm of inf] (report) {Draft Report};
+  \node[io, below=of report] (delta) {Delta Summary};
+  \node[io, below=of delta] (ev) {Evidence Ledger};
+  \node[io, below=of ev] (fhir_out) {FHIR Export};
+
+  % Arrows — inputs
+  \draw[arrow] (cxr.east) -- ++(0.3,0) |- (val.west);
+  \draw[arrow] (audio.east) -- (val.west);
+  \draw[arrow] (fhir_in.east) -- ++(0.3,0) |- (val.west);
+
+  % Arrows — pipeline
+  \draw[arrow] (val) -- (pre);
+  \draw[arrow] (pre) -- (inf);
+  \draw[arrow] (pre.south) -- (ctx.north);
+  \draw[arrow] (ctx.south) -- (rag.north);
+  \draw[arrow] (rag.east) -| ($(inf.south west)+(0.3,0)$);
+  \draw[arrow] (inf) -- (schema);
+  \draw[arrow] (schema) -- (ledger);
+
+  % Arrows — outputs
+  \draw[arrow] (inf.east) -- (report.west);
+  \draw[arrow] (schema.east) -| ($(delta.west)-(0.2,0)$) -- (delta.west);
+  \draw[arrow] (ledger.east) -| ($(ev.west)-(0.2,0)$) -- (ev.west);
+  \draw[arrow] (ledger.south) -| (fhir_out.west);
+
+\end{tikzpicture}%
+}
+\caption{DeltaScribe Edge agentic pipeline. Dashed boxes are inputs/outputs; solid boxes are deterministic tool steps. Each step emits a visible event to the UI timeline.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Agentic Workflow}
+
+DeltaScribe Edge decomposes the clinical workflow into a \emph{deterministic state machine} with explicit tool steps (Figure~\ref{fig:pipeline}), each emitting a visible event in the UI timeline:
+
+\begin{enumerate}
+  \item \textbf{Intake} --- verify prior/current imaging present; check optional inputs.
+  \item \textbf{Preprocessing} --- normalise images to consistent internal format.
+  \item \textbf{Context retrieval} (optional) --- parse minimal fields from local FHIR bundle; transcribe dictation.
+  \item \textbf{Evidence retrieval} (optional) --- top-$K$ image RAG from local atlas; text RAG from guideline pack.
+  \item \textbf{Longitudinal inference} --- MedGemma generates delta findings, report draft, and structured JSON.
+  \item \textbf{Schema validation and repair} --- enforce strict JSON schema; repair structure only if needed.
+  \item \textbf{Assembly} --- build Evidence Ledger (claims $\rightarrow$ evidence pointers $+$ uncertainty), draft report, and FHIR Bundle (\texttt{DiagnosticReport} + \texttt{Observations}).
+\end{enumerate}
+
+This design matches the Agentic Workflow Prize intent: a significant overhaul of a complex process using callable tools with visible intermediate artifacts and validation gates.
+
+\subsection{Evidence Ledger (Verifiable Behavior)}
+
+Every key statement is represented as a \emph{claim object}: (i)~claim text, (ii)~evidence pointers (current image, prior image, retrieved cases, guideline snippets, dictation excerpts), (iii)~uncertainty level $\in \{\textit{low},\, \textit{medium},\, \textit{high}\}$, and (iv)~clinician-readable rationale.
+
+\smallskip
+\noindent\textbf{Policy: no evidence $\Rightarrow$ no valid finding.}
+The schema requires every finding to link at least one evidence source; findings without evidence cannot pass validation.
+This structural constraint ensures that no unsupported claim reaches the final output.
+
+% ── Evidence Ledger Example ──────────────────────────────────────────
+\begin{table}[h]
+\centering
+\small
+\caption{Example Evidence Ledger entry for a single claim.}
+\label{tab:ledger_example}
+\begin{tabularx}{\columnwidth}{@{}lX@{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Claim       & Right lower lobe opacity improved vs.\ prior. \\
+Evidence    & Current CXR (region 4), Prior CXR (region 4), Atlas case \#17 (sim.\ 0.82). \\
+Uncertainty & \textit{low} \\
+Rationale   & Opacity extent decreased; consistent with retrieved atlas exemplar showing resolving consolidation. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Retrieval Augmentation}
+
+\textbf{Image RAG.}
+BiomedCLIP (Microsoft, via \texttt{open\_clip}) encodes the query CXR; the top-$K$ most similar cases are retrieved from a precomputed atlas of CXR Foundation embeddings via cosine similarity.
+Retrieved exemplars are displayed with similarity scores.
+
+\textbf{Zero-shot classification \& Text RAG.}
+MedSigLIP provides zero-shot pathology classification and cross-modal guideline retrieval from an offline pack of 15 clinical guidelines.
+Both retrieval pathways are visible to the clinician in the UI, supporting transparency and enabling informed override.
+
+\subsection{Key Design Decisions}
+
+Several architectural choices distinguish DeltaScribe Edge from a naive ``model-generates-report'' approach:
+
+\begin{enumerate}
+  \item \textbf{Deterministic pipeline, not end-to-end generation.}
+  Each step is independently testable, debuggable, and auditable.
+  A failure at step~6 (schema validation) does not require re-running inference.
+
+  \item \textbf{Structured intermediate representation.}
+  MedGemma outputs a constrained JSON schema per finding: \texttt{label} (8-class vocabulary), \texttt{delta} (improved/stable/worsened/uncertain), \texttt{rationale}, \texttt{evidence\_refs}, optional \texttt{bounding\_box}, and \texttt{uncertainty} level.
+  The draft report is rendered \emph{from} this structure, not generated as free text---ensuring consistency between the summary, report, and ledger.
+
+  \item \textbf{Retrieval as context and transparency.}
+  RAG is not used to ``improve generation quality'' in the usual sense.
+  Retrieved similar cases and guideline snippets are injected into the inference prompt, giving MedGemma grounded context.
+  Retrieval artifacts are also surfaced directly in the UI so clinicians can independently verify model output against evidence.
+
+  \item \textbf{FHIR export as a first-class output.}
+  Rather than treating interoperability as an afterthought, the FHIR Bundle is generated deterministically from the structured JSON at every run, ensuring the system is integration-ready from the start.
+\end{enumerate}
+
+\subsection{Evaluation}
+
+Table~\ref{tab:eval} summarises the evaluation framework.
+Metrics are grouped by reliability, feasibility, consistency, and trust to map directly to the judging criteria.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Evaluation metrics and results.}
+\label{tab:eval}
+\begin{tabularx}{\columnwidth}{@{}lXr@{}}
+\toprule
+\textbf{Category} & \textbf{Metric} & \textbf{Result} \\
+\midrule
+Reliability & Schema validity (\% valid JSON w/o repair) & 100\,\% \\
+            & FHIR export integrity (structural)          & Pass \\
+Feasibility & Latency (time-to-first-draft, M3/CPU)      & 177\,s avg \\
+            & Latency range (5 demo pairs)                & 130--231\,s \\
+Consistency & Delta label agreement (curated pairs)       & \textit{pending} \\
+Trust       & Evidence coverage rate                      & 100\,\% \\
+            & Disclaimer present                          & 100\,\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\noindent\textbf{Evaluation protocol.}
+Metrics are computed over 5 curated prior/current CXR demo pairs run end-to-end in Docker on an Apple~M3 (24\,GB RAM, CPU-only, GGUF Q4\_K\_M inference).
+Schema validity: 5/5 cases returned valid JSON on first pass (no repair needed).
+Latency: mean 177\,s (range 130--231\,s); cold model load (GGUF + retrieval models) accounts for ${\sim}$60\,s of the first run.
+Evidence coverage: all asserted findings include $\geq$1 valid evidence pointer.
+A disclaimer (``Draft only---requires clinician verification'') is present in 100\% of outputs.
+Delta label agreement against reference annotations is planned but not yet computed.
+All evaluation code, data, and commands to reproduce results are provided in the public repository.
+
+\subsection{Responsible Use and Limitations}
+
+DeltaScribe Edge is \emph{not} a diagnostic device.
+Outputs are drafts intended for review by qualified clinicians.
+Longitudinal claims are suppressed when priors are missing; retrieval is used for transparency and grounding---not for ``diagnosis by similarity.''
+All inference runs locally; no PHI needs to leave the device.
+
+\smallskip
+\noindent\textbf{Known limitations:}
+
+\begin{itemize}
+  \item Performance is bounded by MedGemma's pre-training distribution; rare pathologies may be under-represented.
+  \item The curated atlas is small and intended for demonstration, not production coverage.
+  \item The current UI is a prototype suitable for evaluation, not clinical deployment.
+  \item The system handles single-modality (CXR) longitudinal comparison only; extension to CT or multi-modality workflows is future work.
+\end{itemize}
+
+\subsection{Future Work}
+
+Several directions are natural extensions of the current system:
+
+\begin{itemize}
+  \item \textbf{Fine-tuning for longitudinal tasks.}
+  Adapting MedGemma with curated prior/current CXR pairs and clinician-annotated interval-change labels to improve delta accuracy beyond zero-shot performance.
+  \item \textbf{Expanded atlas and retrieval.}
+  Scaling the curated atlas from demonstration size to a clinically representative collection, with stratified sampling across pathology types and severity.
+  \item \textbf{Multi-modality support.}
+  Extending the pipeline to handle CT follow-ups and cross-modality comparisons (e.g., CXR $\rightarrow$ CT progression tracking).
+  \item \textbf{Edge deployment (implemented).}
+  MedGemma 4B-IT is quantised to GGUF Q4\_K\_M (${\sim}$2.3\,GB) and runs entirely on CPU via \texttt{llama-cpp-python} inside Docker.
+  Evaluated on Apple~M3 (24\,GB) with an average latency of 177\,s per case across 5~demo pairs---no GPU required.
+  \item \textbf{Clinical pilot.}
+  Partnering with a clinical site to measure real-world time savings and reporting consistency in a controlled pilot study, with IRB approval.
+\end{itemize}
+
+\subsection{What the Video Demonstrates}
+
+The 3-minute video shows the end-to-end workflow:
+
+\begin{itemize}
+  \item Offline proof (no network access during inference).
+  \item Loading a prior/current CXR pair into the local UI.
+  \item Agent timeline with visible step-by-step execution and intermediate artifacts.
+  \item Evidence Ledger inspection (claim $\rightarrow$ source tracing, as in Table~\ref{tab:ledger_example}).
+  \item FHIR export generation and bundle validation.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════
+\section{Links}
+\label{sec:links}
+
+\noindent\textbf{Track selection:} Main Track + Agentic Workflow Prize.
+
+\smallskip
+\noindent\textbf{Required:}
+\begin{itemize}
+  \item Video demo ($\leq$3\,min): \texttt{[PASTE\_LINK]}
+  \item Public code repository: \texttt{[PASTE\_LINK]}
+\end{itemize}
+
+\noindent\textbf{Bonus:}
+\begin{itemize}
+  \item Live demo app: \texttt{[PASTE\_LINK]}
+  \item Model artifacts (HAI-DEF lineage): \texttt{[PASTE\_LINK]}
+  \item Dataset / atlas curation notes: \texttt{[PASTE\_LINK]}
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════
+\bibliographystyle{plain}
+\begin{thebibliography}{1}
+\small
+
+\bibitem{medgemma2026}
+F.~Mahvar, Y.~Liu, D.~Golden, F.~Jamil, S.~Jansen, C.~Kirmizi, R.~Pilgrim, D.\,F.~Steiner, A.~Sellergren, R.~Tiwari, S.~Virmani, L.~Yatziv, R.~Hemenway, Y.~Matias, R.\,Levavi~Morad, A.~Hassidim, S.~Shetty, and M.~Cruz.
+\newblock The {MedGemma} Impact Challenge.
+\newblock \url{https://kaggle.com/competitions/med-gemma-impact-challenge}, 2026.
+
+\end{thebibliography}
+
+\end{document}

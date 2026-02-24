@@ -1,0 +1,42 @@
+{
+  "patient_id": "cxr_002",
+  "description": "New effusion and infiltration",
+  "prior": {
+    "filename": "prior.png",
+    "finding": "Clear lungs",
+    "nih_image": "00000005_000.png",
+    "nih_labels": [
+      "No Finding"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "No Finding",
+      "follow_up": "0",
+      "patient_id": "5",
+      "patient_age": "69",
+      "patient_gender": "F",
+      "view_position": "PA"
+    },
+    "study_index": "Study #0"
+  },
+  "current": {
+    "filename": "current.png",
+    "finding": "New effusion with infiltration",
+    "nih_image": "00000005_007.png",
+    "nih_labels": [
+      "Effusion",
+      "Infiltration"
+    ],
+    "nih_csv_row": {
+      "finding_labels": "Effusion|Infiltration",
+      "follow_up": "7",
+      "patient_id": "5",
+      "patient_age": "70",
+      "patient_gender": "F",
+      "view_position": "PA"
+    },
+    "study_index": "Study #7"
+  },
+  "expected_delta": "worsened",
+  "source": "NIH ChestX-ray14 (CC0 1.0 Public Domain)",
+  "nih_patient_id": "5"
+}

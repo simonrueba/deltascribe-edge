@@ -1,0 +1,71 @@
+[project]
+name = "deltascribe-backend"
+version = "0.1.0"
+description = "DeltaScribe Edge - Offline-first longitudinal imaging copilot backend"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    "python-multipart>=0.0.18",
+    "pillow>=11.0.0",
+    "torch>=2.5.0",
+    "transformers>=4.47.0",
+    "accelerate>=1.2.0",
+    "safetensors>=0.4.0",
+    "huggingface-hub>=0.27.0",
+    "jsonschema>=4.23.0",
+    "structlog>=24.4.0",
+    "websockets>=14.1",
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+dicom = [
+    "pydicom>=3.0.0",
+    "python-gdcm>=3.0.0",
+]
+audio = [
+    "soundfile>=0.12.0",
+    "librosa>=0.10.0",
+]
+gguf = [
+    "llama-cpp-python>=0.3.0",
+]
+retrieval = [
+    "open_clip_torch>=2.26.0",
+    "pandas>=2.2.0",
+    "sentencepiece>=0.2.0",
+    "protobuf>=5.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
